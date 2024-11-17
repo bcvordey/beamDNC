@@ -5,8 +5,7 @@ clc; clear; close all;
  % Parameters
 L = 1;   % Length of the domain
 T = 5;  % Total time
-M = 10;   % Number of spatial points
-N = 1000;
+M = 20;   % Number of spatial points
 
 EI = 1e-4;              % Flexural rigidity (N·m^2)
 rho = 1;               % Density of the beam (kg/m)
@@ -18,9 +17,9 @@ beta = 0.1;
 kappa = 0.1;
 
 % Obstacle Position
-obstaclePosition = -0.1;
+obstaclePosition = -0.01;
 % Velocity 
-initialVelocity = 1;
+initialVelocity = 0.01;
 
 t0 = -obstaclePosition / initialVelocity;      % Time step size
 
@@ -31,7 +30,8 @@ alpha = EI / (rho * A); % Wave propagation constant
 
 % Spatial and time steps
 dx = L / (M-1);
-dt = (T-t0) / N;          % Number of time steps
+dt = 0.01;
+N = T / dt;          % Number of time steps
 
 % Stability condition
 CFL = alpha * dt / dx^4; % Courant number (stability condition)
@@ -59,7 +59,8 @@ for j = 2:N-1
                    + (dt^2) * force;
     end
     % Left end boundary condition
-    u(j+1,1) = u(j+1,2);
+    u(j+1,1) = 0;
+    u(j+1,2) = -initialVelocity * t0;
 
 
     % The point before the contact point M-1;
@@ -77,7 +78,7 @@ for j = 2:N-1
                                        - ((15*alpha^2*dt*u + beta*dx^3*u_p - beta*dx^3*u - 9*alpha^2*u_1*dt + alpha^2*u_2*dt + dx^3*kappa*dt*u - dx^3*kappa*dt*obstaclePosition)/(7*alpha^2*dt)) ...  
                                        + 2*u_1 - u_2) - 2*dx^3 * (kappa*u - kappa*obstaclePosition - beta*((u - u_p)/dt));
 
-        initial_guess = -1;
+        initial_guess = u(j,M);
         u(j+1,M) = fsolve(contactConditionFun, initial_guess);  
 
     else
@@ -94,7 +95,7 @@ t = linspace(0, T, N);     % Time grid
 figure;
 for n = 1:5:N
     plot(x, u(n, :), 'b', 'LineWidth', 1);
-    axis([0 L -0.1 0.1]);
+    axis([0 L -0.04 0.04]);
     xlabel('x (m)');
     ylabel('Displacement u(x,t)');
     title(['Beam Displacement at t = ' num2str((n-1)*dt) ' s']);
@@ -102,13 +103,13 @@ for n = 1:5:N
     pause(0.01);
 end
 
-% Surface plot of displacement over time
-figure;
-surf(t, x, u', 'EdgeColor', 'none');
-xlabel('Time (s)');
-ylabel('x (m)');
-zlabel('Displacement u(x,t)');
-title('Beam Displacement Over Time');
-colormap jet;
-colorbar;
-view(45, 30);
+% % Surface plot of displacement over time
+% figure;
+% surf(t, x, u', 'EdgeColor', 'none');
+% xlabel('Time (s)');
+% ylabel('x (m)');
+% zlabel('Displacement u(x,t)');
+% title('Beam Displacement Over Time');
+% colormap jet;
+% colorbar;
+% view(45, 30);
