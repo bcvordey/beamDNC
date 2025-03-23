@@ -1,5 +1,5 @@
 % 1D Beam Equation with Time Component (Finite Difference Method)
-% Author: Bright Vordey
+% Author: Bright Vordeycle
 clc; clear; close all;
 
  % Parameters
